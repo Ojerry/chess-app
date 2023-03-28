@@ -9,9 +9,16 @@ export default class Referee{
             return false
         }
     }
+    TileIsOccupiedByOpponent(x: number, y: number, boardState: Piece[], team: TeamType): boolean{
+        const piece = boardState.find((p) => p.x === x && p.y === y && p.team !== team);
+        if(piece){
+            return true
+        } else {
+            return false
+        }
+    }
     isValidMove(px: number, py: number, x: number, y: number, type: PieceType, team: TeamType, boardState: Piece[]){
-        console.log(type)
-
+        
         if(type === PieceType.PAWN){
             const specialRow = (team === TeamType.OUR) ? 1 : 6;
             const pawnDirection = (team === TeamType.OUR) ? 1 : -1;
@@ -22,6 +29,18 @@ export default class Referee{
                 }
             } else if(px === x && y - py === pawnDirection){
                 if(!this.tileIsOccupied(x,y, boardState)){
+                    return true
+                }
+            }
+            // Attack Logic
+            else if(x -  px === -1 && y - py === pawnDirection){
+                // Attack Upper or Bottom left corner
+                if(this.TileIsOccupiedByOpponent(x,y,boardState, team)){
+                    return true
+                }
+            } else if(x - px === 1 && y - py === pawnDirection){
+                // Attack in the Upper or Bottom Right Corner
+                if(this.TileIsOccupiedByOpponent(x,y,boardState, team)){
                     return true
                 }
             }

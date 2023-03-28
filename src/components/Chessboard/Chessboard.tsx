@@ -116,24 +116,47 @@ export default function Chessboard(){
             const x = Math.floor((e.clientX - chessboard.offsetLeft) / 62.5);
             const y = Math.abs(Math.ceil((e.clientY - chessboard.offsetTop - 500) / 62.5));
 
+            const currentPiece = pieces.find(p => p.x === gridX && p.y === gridY);
+            const attackPiece = pieces.find(p => p.x === x && p.y === y);
 
-            setPieces((value) => {
-                const pieces = value.map((p) => {
-                    if(p.x === gridX && p.y === gridY){
-                        const validMove = referee.isValidMove(gridX, gridY, x, y, p.type, p.team, value)
-                        if(validMove){
-                            p.x = x;
-                            p.y = y;
-                        } else {
-                            activePiece.style.position = "relative";
-                            activePiece.style.removeProperty("top")
-                            activePiece.style.removeProperty("left")
+            if(currentPiece){
+                const validMove = referee.isValidMove(gridX, gridY, x, y, currentPiece.type, currentPiece.team, pieces)
+
+                if(validMove){
+                    // Update Piece position
+                    const updatedPieces = pieces.reduce((results, piece) => {
+                        if(piece.x === currentPiece.x && piece.y === currentPiece.y){
+                            piece.x = x
+                            piece.y = y
+                            results.push(piece)
+                        } else if(!(piece.x === x && piece.y === y)){
+                            results.push(piece)
                         }
-                    };
-                    return p;
-                })
-                return pieces;
-            })
+                        return results;
+                    }, [] as Piece[]);
+                    setPieces(updatedPieces)
+
+                    // setPieces((value) => {
+                    //     const pieces = value.reduce((results, piece) => {
+                            
+                    //         if(piece.x === currentPiece.x && piece.y === currentPiece.y){
+                    //             piece.x = x
+                    //             piece.y = y
+                    //             results.push(piece)
+                    //         } else if(!(piece.x === x && piece.y === y)){
+                    //             results.push(piece)
+                    //         }
+
+                    //         return results
+                    //     }, [] as Piece[]);
+                    //     return pieces;
+                    // })
+                } else {
+                    activePiece.style.position = "relative";
+                    activePiece.style.removeProperty("top")
+                    activePiece.style.removeProperty("left")
+                }
+            }
             setActivePiece(null)
         }
     }
